@@ -41,7 +41,7 @@ class Manager {
 
     void loadEvents(final ProgressBar progressBar, final MyCallback callback) {
 
-        service.getEntities()
+        service.getEntities(String.valueOf(app.getLastModifiedTimestamp()))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<MyEntity>>() {
@@ -54,7 +54,12 @@ class Manager {
                     @Override
                     public void onError(Throwable e) {
                         Timber.e(e, "Error while loading the entities"); // TODO: rename this
-                        callback.showError("Not able to retrieve the data. Displaying local data!");
+                        if (e.getMessage() != null && e.getMessage().trim().equals("HTTP 304 Not Modified")) {
+                            progressBar.setVisibility(View.GONE);
+                            Timber.e("Got HTTP 304 - Dataset was not changed");
+                        }
+                        else
+                            callback.showError("Not able to retrieve the data. Displaying local data!");
                     }
 
                     @Override
@@ -63,6 +68,7 @@ class Manager {
                             public void run() {
                                 //app.db.getEntityDao().deleteBooks(); TODO: implement delete
                                 //app.db.getEntityDao().addBooks(books); TODO: implement add
+                                app.setLastModifiedTimestamp((int)(System.currentTimeMillis()/1000L));
                             }
                         }).start();
                         Timber.v("Entities persisted"); // TODO: rename this

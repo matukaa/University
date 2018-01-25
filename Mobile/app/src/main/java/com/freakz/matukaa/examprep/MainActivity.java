@@ -1,6 +1,8 @@
 package com.freakz.matukaa.examprep;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.preference.PreferenceActivity;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -58,7 +60,22 @@ public class MainActivity extends AppCompatActivity implements MyCallback {
             fab.setVisibility(View.GONE);
             showError("No internet connection");
         }
+        progressBar.setVisibility(View.VISIBLE);
         manager.loadEvents(progressBar, this);
+        if (connectivity){
+            final Handler h = new Handler();
+            final int delay = 5000;
+            final MainActivity thisActivity = this;
+
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                    manager.loadEvents(progressBar, thisActivity);
+                    h.postDelayed(this, delay);
+                }
+            }, delay);
+        }
         return connectivity;
     }
 

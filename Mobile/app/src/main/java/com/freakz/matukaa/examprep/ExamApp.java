@@ -13,6 +13,15 @@ import timber.log.Timber;
 
 public class ExamApp extends Application {
     public ExamDatabase db;
+    private int lastModifiedTimestamp = 0;
+
+    public int getLastModifiedTimestamp(){
+        return lastModifiedTimestamp;
+    }
+
+    public void setLastModifiedTimestamp(int timestamp){
+        lastModifiedTimestamp = timestamp;
+    }
 
     @Override
     public void onCreate() {
